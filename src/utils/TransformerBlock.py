@@ -1,8 +1,11 @@
 from torch import nn
+from Gelu import gelu
 import torch
 import math
 from Feedforward import FeedForward
 
+from LayerNorm import BertLayerNorm
+from Feedforward import FeedForward
 
 class TransformerBlock(nn.Module):
     def __init__(self, config_dict):
@@ -13,12 +16,9 @@ class TransformerBlock(nn.Module):
         self.feedforward = FeedForward(config_dict)
         self.intermediate_linear = nn.Linear(self.hidden_size, self.intermediate_size)
 
-    def gelu(self, input):
-        return input * 0.5 * (1.0 + torch.erf(input / math.sqrt(2.0)))
-
     def forward(self, input):
         self_att_output = self.attention(input)
-        intermediate_linear_op = self.gelu(self.intermediate_linear(self_att_output))
+        intermediate_linear_op = gelu(self.intermediate_linear(self_att_output))
         return self.feedforward(intermediate_linear_op)
 
 

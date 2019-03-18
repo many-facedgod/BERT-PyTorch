@@ -36,7 +36,6 @@ class BertEncoder(nn.Module):
 
 
 class BertPooler(nn.Module):
-
     def __init__(self, config):
         super(BertPooler, self).__init__()
         hidden_size = config["hidden_size"]
