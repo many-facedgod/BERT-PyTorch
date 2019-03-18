@@ -28,6 +28,6 @@ class BERTAttention(nn.Module):
                                                                                                                3)
         energies = torch.matmul(all_queries, all_values.permute(0, 1, 3, 2)) / np.sqrt(self.n_heads) + mask
         weights = F.softmax(energies, dim=3)
-        weights = nn.Dropout(weights)
+        weights = self.dropout(weights)
         attended = torch.matmul(weights, all_keys).permute(0, 2, 1, 3).contiguous().view(batch_size, length, -1)
         return self.ff(attended)
