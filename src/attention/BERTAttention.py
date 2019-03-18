@@ -8,6 +8,7 @@ from Feedforward import FeedForward
 class BERTAttention(nn.Module):
 
     def __init__(self, config_dict):
+        super(BERTAttention, self).__init__()
         self.n_heads = config_dict["n_heads"]
         self.head_size = config_dict["hidden_size"] // config_dict["n_heads"]
         self.hidden_size = config_dict["hidden_size"]
