@@ -1,6 +1,7 @@
 from torch import nn
 from LayerNorm import BertLayerNorm
 
+
 class FeedForward(nn.Module):
     def __init__(self, config_dict):
         super(FeedForward).__init__()
@@ -11,4 +12,4 @@ class FeedForward(nn.Module):
         self.layer_norm = BertLayerNorm(config_dict)
 
     def forward(self, input):
-        return  self.layer_norm(input + self.dropout(self.linear(input)))
+        return self.layer_norm(input + self.dropout(self.linear(input)))
