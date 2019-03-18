@@ -4,11 +4,13 @@ from Gelu import gelu
 from LayerNorm import BertLayerNorm
 import torch
 
-class TrainableBert(nn.Module):
-    def __init__(self, config_dict, pretrained_bert=None):
-        super(TrainableBert)._init__()
 
-        if pretrained_bert == None:
+class TrainableBert(nn.Module):
+
+    def __init__(self, config_dict, pretrained_bert=None):
+        super(TrainableBert, self).__init__()
+
+        if pretrained_bert is None:
             self.bert = Bert(config_dict)
         else:
             self.bert = pretrained_bert
@@ -22,7 +24,7 @@ class TrainableBert(nn.Module):
         self.decoder.weight = bert_model_embedding_weights
         self.bias = nn.Parameter(torch.zeros(bert_model_embedding_weights.size(0)))
 
-        self.sentence_classification = nn.Linear(config_dict["hidden_size"],  2)
+        self.sentence_classification = nn.Linear(config_dict["hidden_size"], 2)
 
     def forward(self, input):
         shared = self.bert(input)
