@@ -1,7 +1,8 @@
 from torch import nn
 import torch
 import math
-from LayerNorm import BertLayerNorm
+from Feedforward import FeedForward
+
 
 class TransformerBlock(nn.Module):
     def __init__(self, config_dict):
@@ -20,9 +21,10 @@ class TransformerBlock(nn.Module):
         intermediate_linear_op = self.gelu(self.intermediate_linear(self_att_output))
         return self.feedforward(intermediate_linear_op)
 
+
 class SelfAttention(nn.Module):
     def __init__(self, config_dict):
         super(SelfAttention).__init__()
 
     def forward(self, input):
-        return  self.layer_norm(input + self.dropout(self.linear(input)))
+        return self.layer_norm(input + self.dropout(self.linear(input)))
