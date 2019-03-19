@@ -9,17 +9,15 @@ import numpy as np
 curr_dir = dirname(realpath(__file__))
 
 
-class Trainer:
+class BERTTrainer:
 
-    def __init__(self, model, dataset, exp_path=join(curr_dir, "../experiments"), run_desc="", log=True):
+    def __init__(self, dataset, exp_path=join(curr_dir, "../../../experiments"), run_desc="", log=True):
         """
-        :param model: The model to train
         :param dataset: The dataset to be used
         :param exp_path: The path to the experiments directory
         :param run_desc: The description of this run
         :param log: Whether to log or not
         """
-        self.model = model
         self.dataset = dataset
         self.exp_path = exp_path
         if not run_desc:
@@ -109,10 +107,10 @@ class Trainer:
         if preload is not None:
             if load_optimizer:
                 self.log("Loading model and optimizer {} from run_id {}...".format(str(preload[1]), preload[0]))
-                Trainer.load_state(self.exp_path, preload[0], preload[1], self.device, model, optimizer)
+                BERTTrainer.load_state(self.exp_path, preload[0], preload[1], self.device, model, optimizer)
             else:
                 self.log("Loading model {} from run_id {}...".format(str(preload[1]), preload[0]))
-                Trainer.load_state(self.exp_path, preload[0], preload[1], self.device, model)
+                BERTTrainer.load_state(self.exp_path, preload[0], preload[1], self.device, model)
             self.log("Loaded.")
             self.log("--------------------------------------------------------")
         for i in range(1, iters + 1):
@@ -120,7 +118,7 @@ class Trainer:
             self.log("Iteration {}/{}:".format(i, iters))
             bar = tqdm(self.dataset, desc="Current training loss: NaN", file=sys.stdout)
             for batch in bar:
-                predictions = self.model(batch["input"])
+                predictions = model(batch["input"])
                 loss = criterion(predictions, batch["tags"])
                 losses.append(loss.item())
                 optimizer.zero_grad()
@@ -131,6 +129,6 @@ class Trainer:
             self.log("--------------------------------------------------------")
             if not i % save_every:
                 self.log("Saving model...")
-                Trainer.save_state(self.exp_path, self.run_id, ("checkpoint", i), model, optimizer)
+                BERTTrainer.save_state(self.exp_path, self.run_id, ("checkpoint", i), model, optimizer)
                 self.log("Saved model {}".format(str(("checkpoint", i))))
                 self.log("--------------------------------------------------------")

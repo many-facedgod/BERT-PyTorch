@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
-from LayerNorm import BertLayerNorm
+from .BERTLayerNorm import BERTLayerNorm
 
 
 class BERTEmbedding(nn.Module):
@@ -18,7 +18,7 @@ class BERTEmbedding(nn.Module):
                                  BERTEmbedding._generate_sinusoid_pos_embedding(config_dict["max_sentence_length"],
                                                                                 config_dict["hidden_size"]))
         self.dropout = nn.Dropout(config_dict["dropout_rate"])
-        self.layer_norm = BertLayerNorm(config_dict)
+        self.layer_norm = BERTLayerNorm(config_dict)
 
     @staticmethod
     def _generate_sinusoid_pos_embedding(max_len, embedding_dim):
@@ -42,8 +42,7 @@ class BERTEmbedding(nn.Module):
             sentence_embedding = self.type_embedding(torch.zeros_like(sentences))
         else:
             sentence_embedding = self.type_embedding(sentence_type)
-
-        if self.config_dict["positional_learnt"]:
+        if not self.config["positional_learnt"]:
             positional_embedding = self.positional_embedding[:length].unsqueeze(0).expand_as(sentence_embedding)
         else:
             positional_embedding = self.positional_embedding(

@@ -8,7 +8,7 @@ curr_dir = dirname(realpath(__file__))
 
 class BERTTrainingDataset:
 
-    def __init__(self, data_path=join(curr_dir, "../data"), total_size=15000000, batch_size=8, noise_prob=0.15,
+    def __init__(self, data_path=join(curr_dir, "../../../data"), total_size=15000000, batch_size=8, noise_prob=0.15,
                  wrong_sent_prob=0.5, device=torch.device("cuda")):
         """
         :param data_path: Path to where the dataset and the vocab files are
@@ -18,7 +18,7 @@ class BERTTrainingDataset:
         :param wrong_sent_prob: Probability for the next sentence to be a random one
         :param device: The device to which the tensors are to be cast
         """
-        self.dataset = np.load(join(data_path, "dataset_toy.npy"))[:total_size]
+        self.dataset = np.load(join(data_path, "dataset.npy"))[:total_size]
         self.vocab = pickle.load(open(join(data_path, "vocab_dict.pkl"), "rb"))
         self.inv_vocab = np.load(open(join(data_path, "inv_vocab_dict.pkl"), "rb"))
         self.batch_size = batch_size
@@ -83,9 +83,9 @@ class BERTTrainingDataset:
         for i in range(batch_size):
             chunk[i, 1:first_lengths[i] + 1] = first_sents[i]
             chunk[i, first_lengths[i] + 1] = self.vocab["[SEP]"]
-            sent_tag[i, :first_lengths[i] + 2] = 1
+            sent_tag[i, :first_lengths[i] + 2] = 0
             chunk[i, first_lengths[i] + 2: first_lengths[i] + 2 + second_lengths[i]] = second_sents[i]
-            sent_tag[i, first_lengths[i] + 2: first_lengths[i] + 3 + second_lengths[i]] = 2
+            sent_tag[i, first_lengths[i] + 2: first_lengths[i] + 3 + second_lengths[i]] = 1
             chunk[i, first_lengths[i] + 2 + second_lengths[i]] = self.vocab["[SEP]"]
         mask = np.zeros(chunk.shape)
         mask[np.where(chunk != self.vocab["[PAD]"])] = 1
