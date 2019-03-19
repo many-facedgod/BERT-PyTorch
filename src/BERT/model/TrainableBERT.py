@@ -31,14 +31,14 @@ class TrainableBERT(nn.Module):
 
     def load_from_weights_dict(self, weights_dict):
         self.bert.load_from_weights_dict(weights_dict)
-        self.lm_l1.weight = weights_dict["cls.predictions.transform.dense.weight"]
-        self.lm_l1.bias = weights_dict["cls.predictions.transform.dense.bias"]
-        self.lm_ln.layer_norm.weight = weights_dict["cls.predictions.transform.LayerNorm.gamma"]
-        self.lm_ln.layer_norm.bias = weights_dict["cls.predictions.transform.LayerNorm.beta"]
-        self.lm_l2.weight = weights_dict["cls.predictions.decoder.weight"]
-        self.lm_l2.bias = weights_dict["cls.predictions.bias"]
-        self.nsp_l1.weight = weights_dict["cls.seq_relationship.weight"]
-        self.nsp_l1.bias = weights_dict["cls.seq_relationship.bias"]
+        self.lm_l1.weight.data = weights_dict["cls.predictions.transform.dense.weight"]
+        self.lm_l1.bias.data = weights_dict["cls.predictions.transform.dense.bias"]
+        self.lm_ln.layer_norm.weight.data = weights_dict["cls.predictions.transform.LayerNorm.gamma"]
+        self.lm_ln.layer_norm.bias.data = weights_dict["cls.predictions.transform.LayerNorm.beta"]
+        self.lm_l2.weight.data = weights_dict["cls.predictions.decoder.weight"]
+        self.lm_l2.bias.data = weights_dict["cls.predictions.bias"]
+        self.nsp_l1.weight.data = weights_dict["cls.seq_relationship.weight"]
+        self.nsp_l1.bias.data = weights_dict["cls.seq_relationship.bias"]
 
 
 

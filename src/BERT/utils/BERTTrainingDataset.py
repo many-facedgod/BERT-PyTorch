@@ -18,7 +18,7 @@ class BERTTrainingDataset:
         :param wrong_sent_prob: Probability for the next sentence to be a random one
         :param device: The device to which the tensors are to be cast
         """
-        self.dataset = np.load(join(data_path, "dataset_toy.npy"))[:total_size]
+        self.dataset = np.load(join(data_path, "dataset.npy"))[:total_size]
         self.vocab = pickle.load(open(join(data_path, "vocab_dict.pkl"), "rb"))
         self.inv_vocab = np.load(open(join(data_path, "inv_vocab_dict.pkl"), "rb"))
         self.batch_size = batch_size

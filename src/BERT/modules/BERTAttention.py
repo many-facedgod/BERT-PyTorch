@@ -26,8 +26,8 @@ class BERTAttention(nn.Module):
         all_keys = self.key_map(embeddings).view(batch_size, length, self.n_heads, self.head_size).permute(0, 2, 1, 3)
         all_values = self.value_map(embeddings).view(batch_size, length, self.n_heads, self.head_size).permute(0, 2, 1,
                                                                                                                3)
-        energies = torch.matmul(all_queries, all_values.permute(0, 1, 3, 2)) / np.sqrt(self.n_heads) + mask
+        energies = torch.matmul(all_queries, all_keys.permute(0, 1, 3, 2)) / np.sqrt(self.head_size) + mask
         weights = F.softmax(energies, dim=3)
         weights = self.dropout(weights)
-        attended = torch.matmul(weights, all_keys).permute(0, 2, 1, 3).contiguous().view(batch_size, length, -1)
+        attended = torch.matmul(weights, all_values).permute(0, 2, 1, 3).contiguous().view(batch_size, length, -1)
         return self.ff(attended, embeddings)

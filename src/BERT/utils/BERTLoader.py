@@ -21,11 +21,11 @@ def _make_config(loaded_config):
 def load_from_file(bert_path):
     tf = tarfile.open(bert_path)
     config_file = tf.getmember("./bert_config.json")
-    config = _make_config(json.loads(config_file.read()))
+    config = _make_config(json.loads(tf.extractfile(config_file).read()))
     weights_file = None
     for member in tf.getmembers():
         if member != config_file:
             weights_file = member
     assert weights_file is not None, "No weights file available"
-    weights_dict = torch.load(weights_file)
+    weights_dict = torch.load(tf.extractfile(weights_file))
     return config, weights_dict
