@@ -11,15 +11,13 @@ curr_dir = dirname(realpath(__file__))
 
 class BERTTrainer:
 
-    def __init__(self, model, dataset, exp_path=join(curr_dir, "../experiments"), run_desc="", log=True):
+    def __init__(self, dataset, exp_path=join(curr_dir, "../../../experiments"), run_desc="", log=True):
         """
-        :param model: The model to train
         :param dataset: The dataset to be used
         :param exp_path: The path to the experiments directory
         :param run_desc: The description of this run
         :param log: Whether to log or not
         """
-        self.model = model
         self.dataset = dataset
         self.exp_path = exp_path
         if not run_desc:
@@ -120,7 +118,7 @@ class BERTTrainer:
             self.log("Iteration {}/{}:".format(i, iters))
             bar = tqdm(self.dataset, desc="Current training loss: NaN", file=sys.stdout)
             for batch in bar:
-                predictions = self.model(batch["input"])
+                predictions = model(batch["input"])
                 loss = criterion(predictions, batch["tags"])
                 losses.append(loss.item())
                 optimizer.zero_grad()
@@ -131,6 +129,6 @@ class BERTTrainer:
             self.log("--------------------------------------------------------")
             if not i % save_every:
                 self.log("Saving model...")
-                Trainer.save_state(self.exp_path, self.run_id, ("checkpoint", i), model, optimizer)
+                BERTTrainer.save_state(self.exp_path, self.run_id, ("checkpoint", i), model, optimizer)
                 self.log("Saved model {}".format(str(("checkpoint", i))))
                 self.log("--------------------------------------------------------")

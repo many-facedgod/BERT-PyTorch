@@ -2,6 +2,7 @@ from torch import nn
 from .BERT import BERT
 from ..modules.Gelu import gelu
 from ..modules.BERTLayerNorm import BERTLayerNorm
+import torch.nn.functional as F
 
 
 class TrainableBERT(nn.Module):
@@ -24,10 +25,9 @@ class TrainableBERT(nn.Module):
 
     def forward(self, batch_input):
         hidden_states, cls = self.bert(batch_input)
-        sentence_class = self.nsp_l1(cls)
-        lang_model = self.lm_l2(self.lm_ln(gelu(self.lm_l1)))
-        lang_model = self.decoder(lang_model) + self.bias
-        return lang_model, sentence_class
+        sentence_class = F.log_softmax(self.nsp_l1(cls), dim=-1)
+        lang_model = F.log_softmax(self.lm_l2(self.lm_ln(gelu(self.lm_l1(hidden_states)))), dim=-1)
+        return {"lm_predictions": lang_model, "nsp_predictions": sentence_class}
 
     def load_from_weights_dict(self, weights_dict):
         self.bert.load_from_weights_dict(weights_dict)
