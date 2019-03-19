@@ -1,10 +1,7 @@
 from torch import nn
-import torch
 from .BERT import BERT
 from ..modules.Gelu import gelu
 from ..modules.BERTLayerNorm import BERTLayerNorm
-import tarfile
-import json
 
 
 class TrainableBERT(nn.Module):

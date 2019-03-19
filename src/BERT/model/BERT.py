@@ -1,7 +1,7 @@
 from torch import nn
 from ..modules.BERTTransformerBlock import BERTTransformerBlock
 from ..modules.BERTEmbedding import BERTEmbedding
-import torch.nn.functional as F
+import torch
 
 
 class BERT(nn.Module):
@@ -10,7 +10,7 @@ class BERT(nn.Module):
         self.config_dict = config_dict
         self.vocab_dict = vocab_dict
         self.inv_vocab_dict = inv_vocab_dict
-        assert len(self.vocab_dict) == config_dict["vocab_size"], "Mismatch in the config and the vocab"
+        # assert len(self.vocab_dict) == config_dict["vocab_size"], "Mismatch in the config and the vocab"
         self.embeddings = BERTEmbedding(config_dict)
         num_layers = config_dict["num_layers"]
         self.layers = nn.ModuleList([BERTTransformerBlock(config_dict) for _ in range(num_layers)])
@@ -57,6 +57,9 @@ class BERT(nn.Module):
                 saved_output.append(input)
             else:
                 saved_output = input
-        cls_token = saved_output[-1][:, 0]
-        pooled = F.tanh(self.pooler(cls_token))
+        if return_all:
+            cls_token = saved_output[-1][:, 0]
+        else:
+            cls_token = saved_output[:, 0]
+        pooled = torch.tanh(self.pooler(cls_token))
         return saved_output, pooled

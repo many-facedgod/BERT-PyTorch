@@ -42,8 +42,7 @@ class BERTEmbedding(nn.Module):
             sentence_embedding = self.type_embedding(torch.zeros_like(sentences))
         else:
             sentence_embedding = self.type_embedding(sentence_type)
-
-        if self.config_dict["positional_learnt"]:
+        if not self.config["positional_learnt"]:
             positional_embedding = self.positional_embedding[:length].unsqueeze(0).expand_as(sentence_embedding)
         else:
             positional_embedding = self.positional_embedding(
