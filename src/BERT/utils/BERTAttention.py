@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
-from Feedforward import FeedForward
+from .BERTResidualFeedForward import BERTResidualFeedForward
 
 
 class BERTAttention(nn.Module):
@@ -16,7 +16,7 @@ class BERTAttention(nn.Module):
         self.query_map = nn.Linear(self.hidden_size, self.hidden_size)
         self.key_map = nn.Linear(self.hidden_size, self.hidden_size)
         self.value_map = nn.Linear(self.hidden_size, self.hidden_size)
-        self.ff = FeedForward(config_dict)
+        self.ff = BERTResidualFeedForward(config_dict, False)
 
     def forward(self, embeddings, mask):
         batch_size = len(embeddings)
@@ -30,4 +30,4 @@ class BERTAttention(nn.Module):
         weights = F.softmax(energies, dim=3)
         weights = self.dropout(weights)
         attended = torch.matmul(weights, all_keys).permute(0, 2, 1, 3).contiguous().view(batch_size, length, -1)
-        return self.ff(attended)
+        return self.ff(attended, embeddings)

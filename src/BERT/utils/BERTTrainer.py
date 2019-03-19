@@ -9,7 +9,7 @@ import numpy as np
 curr_dir = dirname(realpath(__file__))
 
 
-class Trainer:
+class BERTTrainer:
 
     def __init__(self, model, dataset, exp_path=join(curr_dir, "../experiments"), run_desc="", log=True):
         """
@@ -109,10 +109,10 @@ class Trainer:
         if preload is not None:
             if load_optimizer:
                 self.log("Loading model and optimizer {} from run_id {}...".format(str(preload[1]), preload[0]))
-                Trainer.load_state(self.exp_path, preload[0], preload[1], self.device, model, optimizer)
+                BERTTrainer.load_state(self.exp_path, preload[0], preload[1], self.device, model, optimizer)
             else:
                 self.log("Loading model {} from run_id {}...".format(str(preload[1]), preload[0]))
-                Trainer.load_state(self.exp_path, preload[0], preload[1], self.device, model)
+                BERTTrainer.load_state(self.exp_path, preload[0], preload[1], self.device, model)
             self.log("Loaded.")
             self.log("--------------------------------------------------------")
         for i in range(1, iters + 1):
