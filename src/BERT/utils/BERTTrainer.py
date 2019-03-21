@@ -124,7 +124,7 @@ class BERTTrainer:
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
-                bar.set_description("Current training loss: {}".format(loss))
+                bar.set_description("Current training loss: {}".format(loss.item()))
             self.log("Mean loss for the iteration: {}".format(np.mean(losses)))
             self.log("--------------------------------------------------------")
             if not i % save_every:

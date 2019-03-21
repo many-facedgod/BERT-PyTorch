@@ -62,8 +62,8 @@ class BERTTrainingDataset:
         first_sents, ind_x, ind_y, label = self._mask(self.dataset[indices])
         first_lengths = np.array([len(i) for i in first_sents])
         second_sents = self.dataset[np.random.randint(len(self.dataset), size=batch_size)]
-        second_sents[np.where(t1_labels == 1)[0]] = self.dataset[(indices + 1) % len(self.dataset)][
-            np.where(t1_labels == 1)[0]]
+        second_sents[np.where(t1_labels == 0)[0]] = self.dataset[(indices + 1) % len(self.dataset)][
+            np.where(t1_labels == 0)[0]]
         second_sents, ind2_x, ind2_y, label2 = self._mask(second_sents)
         second_lengths = np.array([len(i) for i in second_sents])
         for i in range(batch_size):
