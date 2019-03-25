@@ -7,18 +7,18 @@ import torch.optim as optim
 
 
 def main():
-    vocab_dict, inv_vocab_dict = load_vocab("../pretrained/vocabularies/bert-base-uncased-vocab.txt")
-    ds = BERTTrainingDataset(total_size=1000000, batch_size=2)
+    vocab_dict, inv_vocab_dict = load_vocab("../data/vocab.txt")
+    ds = BERTTrainingDataset(total_size=1000000, batch_size=32)
     config = {}
-    config["hidden_size"] = 128
+    config["hidden_size"] = 768
     config["vocab_size"] = len(vocab_dict)
-    config["num_layers"] = 3
+    config["num_layers"] = 12
     config["positional_learnt"] = True
-    config["n_heads"] = 4
+    config["n_heads"] = 12
     config["attention_dropout_rate"] = 0.1
     config["dropout_rate"] = 0.1
-    config["max_sentence_length"] = 128
-    config["bottleneck_size"] = 256
+    config["max_sentence_length"] = 512
+    config["bottleneck_size"] = 3072
     config["eps_value"] = 1e-12
     model = TrainableBERT(config, vocab_dict, inv_vocab_dict).cuda()
     criterion = BERTLoss()
