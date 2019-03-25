@@ -117,7 +117,7 @@ class BERTTrainer:
             losses = []
             self.log("Iteration {}/{}:".format(i, iters))
             bar = tqdm(self.dataset, desc="Current training loss: NaN", file=sys.stdout)
-            for batch in bar:
+            for j, batch in enumerate(bar):
                 predictions = model(batch["input"])
                 loss = criterion(predictions, batch["tags"])
                 losses.append(loss.item())
@@ -125,9 +125,14 @@ class BERTTrainer:
                 loss.backward()
                 optimizer.step()
                 bar.set_description("Current training loss: {}".format(loss.item()))
+                if save_every < 0 and not j % -save_every:
+                    self.log("Saving model...")
+                    BERTTrainer.save_state(self.exp_path, self.run_id, ("checkpoint", i, j), model, optimizer)
+                    self.log("Saved model {}".format(str(("checkpoint", i, j))))
+                    self.log("--------------------------------------------------------")
             self.log("Mean loss for the iteration: {}".format(np.mean(losses)))
             self.log("--------------------------------------------------------")
-            if not i % save_every:
+            if save_every > 0 and not i % save_every:
                 self.log("Saving model...")
                 BERTTrainer.save_state(self.exp_path, self.run_id, ("checkpoint", i), model, optimizer)
                 self.log("Saved model {}".format(str(("checkpoint", i))))

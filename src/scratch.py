@@ -23,7 +23,7 @@ def main():
     model = TrainableBERT(config, vocab_dict, inv_vocab_dict).cuda()
     criterion = BERTLoss()
     trainer = BERTTrainer(ds)
-    trainer.train(model, criterion, optim.Adam(model.parameters()), save_every=1000)
+    trainer.train(model, criterion, optim.Adam(model.parameters()), save_every=-6500)
 
 
 if __name__ == "__main__":
