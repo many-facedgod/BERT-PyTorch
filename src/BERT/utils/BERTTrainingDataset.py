@@ -37,23 +37,24 @@ class BERTTrainingDataset:
             yield self._make_batch(indices[i * self.batch_size: (i + 1) * self.batch_size])
 
     def _mask(self, data_chunk):
+        masked_chunk = []
         ind_x, ind_y, label = [], [], []
         for i in range(len(data_chunk)):
+            masked_chunk.append(data_chunk[i].copy())
             noise_predicate = np.random.random(size=len(data_chunk[i])) < self.noise_prob
             # Add [MASK] to 80%
-            mask_predicate = np.logical_and(np.random.random(size=len(data_chunk[i])) < 0.8, noise_predicate)
+            mask_predicate = np.logical_and(np.random.random(size=len(data_chunk[i])) < 1.0, noise_predicate)
             # A random word for 20%
             random_predicate = np.logical_and(np.random.random(size=len(data_chunk[i])) < 0.5, noise_predicate)
             random_predicate = np.logical_and(random_predicate, np.logical_not(mask_predicate))
-
             indices = np.where(noise_predicate)[0]
             ind_x.append(np.array([i] * len(indices), dtype=np.int64))
             ind_y.append(indices)
             label.append(data_chunk[i][indices])
-            data_chunk[i][np.where(mask_predicate)[0]] = self.vocab["[MASK]"]
-            data_chunk[i][np.where(random_predicate)[0]] = np.random.randint(len(self.vocab),
+            masked_chunk[i][np.where(mask_predicate)[0]] = self.vocab["[MASK]"]
+            masked_chunk[i][np.where(random_predicate)[0]] = np.random.randint(len(self.vocab),
                                                                              size=random_predicate.sum())
-        return data_chunk, np.concatenate(ind_x).astype(np.int64), np.concatenate(ind_y).astype(
+        return np.array(masked_chunk, dtype='O'), np.concatenate(ind_x).astype(np.int64), np.concatenate(ind_y).astype(
             np.int64), np.concatenate(label).astype(np.int64)
 
     def _make_batch(self, indices):

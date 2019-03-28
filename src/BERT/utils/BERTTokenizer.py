@@ -23,7 +23,7 @@ import unicodedata
 from io import open
 
 logger = logging.getLogger(__name__)
-VOCAB_NAME = 'vocab.txt'
+VOCAB_NAME = 'uncased_vocab.txt'
 
 
 def load_vocab(vocab_file):
