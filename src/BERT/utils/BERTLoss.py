@@ -3,6 +3,7 @@ import torch.nn as nn
 
 
 class BERTLoss(nn.Module):
+    """Loss for language modeling and next-sentence prediction."""
 
     def __init__(self, lm_weight=1.0, nsp_weight=1.0):
         """

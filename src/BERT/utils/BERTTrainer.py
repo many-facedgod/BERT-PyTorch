@@ -1,10 +1,13 @@
+import sys
+import time
+
+import numpy as np
 import torch
+
 from os.path import realpath, join, isdir, dirname
 from os import mkdir
-import sys
+
 from tqdm import tqdm
-import time
-import numpy as np
 
 curr_dir = dirname(realpath(__file__))
 
@@ -37,6 +40,8 @@ class BERTTrainer:
             self.device = torch.device("cuda")
         else:
             self.device = torch.device("cpu")
+        self.log(f"Run ID: {self.run_id}")
+        self.log(f"Run description: {self.run_desc}")
         self.log("--------------------------------------------------------")
 
     def log(self, x):

@@ -1,26 +1,33 @@
-import numpy as np
 import pickle
+
+import numpy as np
 import torch
+
 from os.path import join, realpath, dirname
+
+from .BERTTokenizer import load_vocab
 
 curr_dir = dirname(realpath(__file__))
 
 
 class BERTTrainingDataset:
+    """Handles batch creation and masking"""
 
-    def __init__(self, data_path=join(curr_dir, "../../../data"), total_size=15000000, batch_size=8, noise_prob=0.15,
+    def __init__(self, data_path=join(curr_dir, "../../../data/dataset_toy.npy"),
+                 vocab_path=join(curr_dir, "../../../data/uncased_vocab.txt"),
+                 total_size=15000000, batch_size=8, noise_prob=0.15,
                  wrong_sent_prob=0.5, device=torch.device("cuda")):
         """
-        :param data_path: Path to where the dataset and the vocab files are
+        :param data_path: Path to the dataset numpy array
+        :param vocab_path: Path to the vocab txt file
         :param total_size: What portion of the dataset to use
         :param batch_size: The batch size
         :param noise_prob: Noise probability for the denoising language model
         :param wrong_sent_prob: Probability for the next sentence to be a random one
         :param device: The device to which the tensors are to be cast
         """
-        self.dataset = np.load(join(data_path, "dataset.npy"))[:total_size]
-        self.vocab = pickle.load(open(join(data_path, "vocab_dict.pkl"), "rb"))
-        self.inv_vocab = np.load(open(join(data_path, "inv_vocab_dict.pkl"), "rb"))
+        self.dataset = np.load(data_path)[:total_size]
+        self.vocab, self.inv_vocab = load_vocab(vocab_path)
         self.batch_size = batch_size
         self.noise_prob = noise_prob
         self.wrong_sent_prob = wrong_sent_prob
@@ -43,7 +50,7 @@ class BERTTrainingDataset:
             masked_chunk.append(data_chunk[i].copy())
             noise_predicate = np.random.random(size=len(data_chunk[i])) < self.noise_prob
             # Add [MASK] to 80%
-            mask_predicate = np.logical_and(np.random.random(size=len(data_chunk[i])) < 1.0, noise_predicate)
+            mask_predicate = np.logical_and(np.random.random(size=len(data_chunk[i])) < 0.8, noise_predicate)
             # A random word for 20%
             random_predicate = np.logical_and(np.random.random(size=len(data_chunk[i])) < 0.5, noise_predicate)
             random_predicate = np.logical_and(random_predicate, np.logical_not(mask_predicate))
@@ -53,7 +60,7 @@ class BERTTrainingDataset:
             label.append(data_chunk[i][indices])
             masked_chunk[i][np.where(mask_predicate)[0]] = self.vocab["[MASK]"]
             masked_chunk[i][np.where(random_predicate)[0]] = np.random.randint(len(self.vocab),
-                                                                             size=random_predicate.sum())
+                                                                               size=random_predicate.sum())
         return np.array(masked_chunk, dtype='O'), np.concatenate(ind_x).astype(np.int64), np.concatenate(ind_y).astype(
             np.int64), np.concatenate(label).astype(np.int64)
 
@@ -71,8 +78,8 @@ class BERTTrainingDataset:
             ind2_y[np.where(ind2_x == i)] += first_lengths[i] + 2
         ind_y += 1
         final_inds = np.concatenate([ind_x, ind2_x]), np.concatenate([ind_y, ind2_y]), np.concatenate([label, label2])
-        t2_labels = tuple(torch.LongTensor(i).to(self.device) for i in final_inds)
-        t1_labels = torch.LongTensor(t1_labels)
+        t2_labels = tuple(torch.tensor(i, dtype=torch.int64).to(self.device) for i in final_inds)
+        t1_labels = torch.tensor(t1_labels, dtype=torch.int64)
         max_len = max(first_lengths + second_lengths + 3)
         chunk = np.full((batch_size, max_len), self.vocab["[PAD]"], dtype=np.int64)
         chunk[:, 0] = self.vocab["[CLS]"]
@@ -91,9 +98,9 @@ class BERTTrainingDataset:
         mask = np.zeros(chunk.shape)
         mask[np.where(chunk != self.vocab["[PAD]"])] = 1
         batch = {"input": {}, "tags": {}}
-        batch["input"]["sentences"] = torch.LongTensor(chunk).to(self.device)
-        batch["input"]["sentence_mask"] = torch.FloatTensor(mask).to(self.device)
-        batch["input"]["sentence_type"] = torch.LongTensor(sent_tag).to(self.device)
+        batch["input"]["sentences"] = torch.tensor(chunk, dtype=torch.int64).to(self.device)
+        batch["input"]["sentence_mask"] = torch.tensor(mask, dtype=torch.float32).to(self.device)
+        batch["input"]["sentence_type"] = torch.tensor(sent_tag, dtype=torch.int64).to(self.device)
         batch["tags"]["lm_labels"] = t2_labels
         batch["tags"]["nsp_labels"] = t1_labels
         return batch

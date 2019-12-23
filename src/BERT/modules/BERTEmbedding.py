@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 import torch.nn as nn
+
 from .BERTLayerNorm import BERTLayerNorm
 
 
@@ -29,7 +30,7 @@ class BERTEmbedding(nn.Module):
         :return: The generated embedding matrix
         """
         embeddings = torch.zeros(max_len, embedding_dim)
-        numerator = torch.arange(max_len).float().view(1, -1)
+        numerator = torch.arange(max_len).float().view(-1, 1)
         inv_denominator = torch.exp(- torch.arange(0, embedding_dim, 2).float() * np.log(10000) / embedding_dim)
         embeddings[:, ::2] = torch.sin(numerator * inv_denominator)
         embeddings[:, 1::2] = torch.cos(numerator * inv_denominator)
